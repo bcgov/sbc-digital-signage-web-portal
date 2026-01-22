@@ -29,7 +29,7 @@ scp -r * pi@<raspberry-pi-ip>:/home/pi/video-portal
 ssh pi@<raspberry-pi-ip>
 cd /home/pi/video-portal
 pip3 install -r requirements.txt
-sudo setcap 'cap_net_bind_service=+ep' /usr/bin/python3
+sudo setcap 'cap_net_bind_service=+ep' /usr/bin/python3.7
 python3 run.py
 ```
 

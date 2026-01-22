@@ -22,7 +22,7 @@ mkdir -p /home/pi/videos
 
 ### 3. Allow port 80 access
 ```bash
-sudo setcap 'cap_net_bind_service=+ep' /usr/bin/python3
+sudo setcap 'cap_net_bind_service=+ep' /usr/bin/python3.7
 ```
 
 ### 4. Test
