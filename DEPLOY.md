@@ -24,8 +24,18 @@ mkdir -p /home/pi/videos
 ```bash
 sudo setcap 'cap_net_bind_service=+ep' /usr/bin/python3.7
 ```
+### 4. Configure Restart TV Button
+Allow the portal to restart the Pi without password:
+```bash
+sudo visudo
+```
+Add this line at the bottom:
+```
+pi ALL=(ALL) NOPASSWD: /sbin/reboot
+```
+Save and exit (Ctrl+X, Y, Enter).
 
-### 4. Test
+### 5. Test
 ```bash
 python3 run.py
 ```
