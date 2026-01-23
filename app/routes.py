@@ -62,17 +62,16 @@ def upload():
     try:
         system = platform.system()
         if system == 'Linux':
-            # Try to restart common video player services
-            # Adjust the service name based on your actual video looping service
-            result = subprocess.run(['sudo', 'systemctl', 'restart', 'video-loop.service'], 
+            # Restart video looper using supervisorctl
+            result = subprocess.run(['sudo', 'supervisorctl', 'restart', 'video_looper'], 
                          capture_output=True, timeout=5, text=True)
             if result.returncode == 0:
-                logger.info("Video player service restarted successfully to load new video")
+                logger.info("Video looper service restarted successfully to load new video")
             else:
-                logger.warning(f"Video player restart returned code {result.returncode}: {result.stderr}")
+                logger.warning(f"Video looper restart returned code {result.returncode}: {result.stderr}")
         else:
             # Simulate on macOS for testing
-            logger.info(f"[TEST MODE - {system}] Would execute: sudo systemctl restart video-loop.service")
+            logger.info(f"[TEST MODE - {system}] Would execute: sudo supervisorctl restart video_looper")
             logger.info(f"[TEST MODE] Video player reload simulated (skipped on {system})")
     except subprocess.TimeoutExpired:
         logger.warning("Video player restart timed out")

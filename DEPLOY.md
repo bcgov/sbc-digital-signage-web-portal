@@ -35,14 +35,20 @@ pi ALL=(ALL) NOPASSWD: /sbin/reboot
 ```
 
 ### 5. Configure Video Player Auto-Reload (Important!)
-To allow the video player to automatically reload when a new video is uploaded, add permission to restart the video player service:
+To allow the video player to automatically reload when a new video is uploaded, add permission to restart the video looper service:
 
 ```bash
 sudo visudo
 ```
-Add this line (update `video-loop.service` to match your actual service name):
+Add this line:
 ```
-pi ALL=(ALL) NOPASSWD: /bin/systemctl restart video-loop.service
+pi ALL=(ALL) NOPASSWD: /usr/bin/supervisorctl restart video_looper
+```
+
+**Verify it works:**
+```bash
+sudo supervisorctl restart video_looper
+# Should work without password prompt
 ```
 
 ### 6. Test
