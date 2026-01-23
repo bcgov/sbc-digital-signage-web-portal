@@ -58,6 +58,27 @@ def upload():
     
     logger.info(f"Video uploaded successfully from {client_ip} | Original: {file.filename} | Size: {file_size_mb:.2f} MB | Saved as: SBC-DISPLAY-VIDEO.mp4")
     
+    # Restart video player to pick up the new file (Raspberry Pi only)
+    try:
+        system = platform.system()
+        if system == 'Linux':
+            # Try to restart common video player services
+            # Adjust the service name based on your actual video looping service
+            result = subprocess.run(['sudo', 'systemctl', 'restart', 'video-loop.service'], 
+                         capture_output=True, timeout=5, text=True)
+            if result.returncode == 0:
+                logger.info("Video player service restarted successfully to load new video")
+            else:
+                logger.warning(f"Video player restart returned code {result.returncode}: {result.stderr}")
+        else:
+            # Simulate on macOS for testing
+            logger.info(f"[TEST MODE - {system}] Would execute: sudo systemctl restart video-loop.service")
+            logger.info(f"[TEST MODE] Video player reload simulated (skipped on {system})")
+    except subprocess.TimeoutExpired:
+        logger.warning("Video player restart timed out")
+    except Exception as e:
+        logger.warning(f"Could not restart video player: {str(e)}")
+    
     return jsonify({'success': True, 'message': 'Video uploaded successfully'})
 
 @app.route('/restart', methods=['POST'])

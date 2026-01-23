@@ -33,9 +33,19 @@ Add this line at the bottom:
 ```
 pi ALL=(ALL) NOPASSWD: /sbin/reboot
 ```
-Save and exit (Ctrl+X, Y, Enter).
 
-### 5. Test
+### 5. Configure Video Player Auto-Reload (Important!)
+To allow the video player to automatically reload when a new video is uploaded, add permission to restart the video player service:
+
+```bash
+sudo visudo
+```
+Add this line (update `video-loop.service` to match your actual service name):
+```
+pi ALL=(ALL) NOPASSWD: /bin/systemctl restart video-loop.service
+```
+
+### 6. Test
 ```bash
 python3 run.py
 ```

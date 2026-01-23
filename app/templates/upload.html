@@ -8,7 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'BC Sans', 'Noto Sans', Arial, sans-serif; 
-            max-width: 900px; 
+            max-width: 1200px; 
             margin: 0 auto; 
             padding: 20px; 
             background: #f5f5f5;
@@ -63,7 +63,7 @@
         }
         .container {
             background: white;
-            padding: 40px;
+            padding: 30px;
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
@@ -127,10 +127,34 @@
         .success-msg {
             background: #d4edda;
             color: #155724;
-            padding: 15px;
-            border-radius: 4px;
+            padding: 25px;
+            border-radius: 6px;
             margin: 20px 0;
-            border: 1px solid #c3e6cb;
+            border-left: 6px solid #28a745;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
+        }
+        .success-msg .title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: block;
+            color: #0d4421;
+        }
+        .success-msg .message {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        .success-msg .note {
+            font-size: 14px;
+            padding: 12px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 4px;
+            margin-top: 12px;
+        }
+        .success-msg .highlight {
+            color: #003366;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -158,7 +182,9 @@
         </div>
 
         <div id="successMsg" class="success-msg hidden">
-            Video uploaded successfully! The display will be updated.
+            <div class="title">✓ Video Uploaded Successfully</div>
+            <div class="message">Display will update in <strong>2-3 minutes</strong></div>
+            <div class="note"><strong>Note:</strong> If the display doesn't update, click the <span class="highlight">Restart TV</span> button above</div>
         </div>
     </div>
 
@@ -218,11 +244,7 @@
                     previewSection.classList.add('hidden');
                     videoInput.value = '';
                     selectedFile = null;
-                    
-                    // Reset after 3 seconds
-                    setTimeout(() => {
-                        successMsg.classList.add('hidden');
-                    }, 3000);
+                    // Success message stays visible - user can upload another video to replace it
                 } else {
                     alert('Upload failed: ' + (data.error || 'Unknown error'));
                 }
