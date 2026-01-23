@@ -24,8 +24,34 @@ mkdir -p /home/pi/videos
 ```bash
 sudo setcap 'cap_net_bind_service=+ep' /usr/bin/python3.7
 ```
+### 4. Configure Restart TV Button
+Allow the portal to restart the Pi without password:
+```bash
+sudo visudo
+```
+Add this line at the bottom:
+```
+pi ALL=(ALL) NOPASSWD: /sbin/reboot
+```
 
-### 4. Test
+### 5. Configure Video Player Auto-Reload (Important!)
+To allow the video player to automatically reload when a new video is uploaded, add permission to restart the video looper service:
+
+```bash
+sudo visudo
+```
+Add this line:
+```
+pi ALL=(ALL) NOPASSWD: /usr/bin/supervisorctl restart video_looper
+```
+
+**Verify it works:**
+```bash
+sudo supervisorctl restart video_looper
+# Should work without password prompt
+```
+
+### 6. Test
 ```bash
 python3 run.py
 ```

@@ -8,7 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'BC Sans', 'Noto Sans', Arial, sans-serif; 
-            max-width: 900px; 
+            max-width: 1200px; 
             margin: 0 auto; 
             padding: 20px; 
             background: #f5f5f5;
@@ -19,6 +19,12 @@
             margin-bottom: 30px; 
             border-radius: 4px;
             border-bottom: 3px solid #003366;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .header-left {
+            flex: 1;
         }
         header img { 
             height: 50px;
@@ -29,9 +35,35 @@
             margin-top: 15px;
             font-weight: 400;
         }
+        .restart-btn {
+            background: #003366;
+            color: white;
+            padding: 10px 20px;
+            border: 2px solid #003366;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            white-space: nowrap;
+            min-width: 32px;
+            min-height: 32px;
+        }
+        .restart-btn:hover {
+            background: #38598a;
+        }
+        .restart-btn:focus {
+            outline: 3px solid #4285f4;
+            outline-offset: 2px;
+        }
+        .restart-btn:disabled {
+            background: #e0e0e0;
+            border-color: #e0e0e0;
+            color: #9e9e9e;
+            cursor: not-allowed;
+        }
         .container {
             background: white;
-            padding: 40px;
+            padding: 30px;
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
@@ -95,17 +127,44 @@
         .success-msg {
             background: #d4edda;
             color: #155724;
-            padding: 15px;
-            border-radius: 4px;
+            padding: 25px;
+            border-radius: 6px;
             margin: 20px 0;
-            border: 1px solid #c3e6cb;
+            border-left: 6px solid #28a745;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
+        }
+        .success-msg .title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: block;
+            color: #0d4421;
+        }
+        .success-msg .message {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        .success-msg .note {
+            font-size: 14px;
+            padding: 12px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 4px;
+            margin-top: 12px;
+        }
+        .success-msg .highlight {
+            color: #003366;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <header>
-        <img src="/static/BCID_H_rgb_pos.png" alt="BC Gov Logo">
-        <h1>Video Upload Portal</h1>
+        <div class="header-left">
+            <img src="/static/BCID_H_rgb_pos.png" alt="BC Gov Logo">
+            <h1>Video Upload Portal</h1>
+        </div>
+        <button class="restart-btn" onclick="restartTV()" id="restartBtn">🔄 Restart TV</button>
     </header>
 
     <div class="container">
@@ -123,9 +182,15 @@
         </div>
 
         <div id="successMsg" class="success-msg hidden">
-            Video uploaded successfully! The display will be updated.
+            <div class="title">✓ Video Uploaded Successfully</div>
+            <div class="message">Display will update in <strong>2-3 minutes</strong></div>
+            <div class="note"><strong>Note:</strong> If the display doesn't update, click the <span class="highlight">Restart TV</span> button above</div>
         </div>
     </div>
+
+    <footer style="background: white; padding: 20px; margin-top: 30px; border-radius: 4px; text-align: center; font-size: 14px; color: #666;">
+        <p>For any issues related to videos running on TV or Video Upload Portal please email <a href="mailto:sbcts@gov.bc.ca" style="color: #003366; text-decoration: none;">sbcts@gov.bc.ca</a></p>
+    </footer>
 
     <script>
         const videoInput = document.getElementById('videoInput');
@@ -179,11 +244,7 @@
                     previewSection.classList.add('hidden');
                     videoInput.value = '';
                     selectedFile = null;
-                    
-                    // Reset after 3 seconds
-                    setTimeout(() => {
-                        successMsg.classList.add('hidden');
-                    }, 3000);
+                    // Success message stays visible - user can upload another video to replace it
                 } else {
                     alert('Upload failed: ' + (data.error || 'Unknown error'));
                 }
@@ -192,6 +253,35 @@
             } finally {
                 confirmBtn.disabled = false;
                 confirmBtn.textContent = 'Confirm & Upload Video';
+            }
+        }
+
+        async function restartTV() {
+            if (!confirm('Are you sure you want to restart the TV? The Raspberry Pi will reboot and this page will become unavailable for about 1-2 minutes.')) {
+                return;
+            }
+
+            const restartBtn = document.getElementById('restartBtn');
+            restartBtn.disabled = true;
+            restartBtn.textContent = 'Restarting Now...';
+
+            // Replace entire page content with restart message
+            document.body.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #f5f5f5; font-family: 'BC Sans', 'Noto Sans', Arial, sans-serif;">
+                    <div style="text-align: center; background: white; padding: 60px 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 500px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🔄</div>
+                        <h2 style="color: #003366; margin-bottom: 15px;">TV Restarting</h2>
+                        <p style="color: #666; margin-bottom: 20px;">The Raspberry Pi is rebooting now. This page will be unavailable for 1-2 minutes.</p>
+                        <p style="color: #999; font-size: 14px;">Refresh this page in a few minutes or once you see the video on the TV.</p>
+                    </div>
+                </div>
+            `;
+
+            try {
+                // Send restart command - don't wait for response as server will go down
+                fetch('/restart', { method: 'POST' });
+            } catch (error) {
+                // Expected to fail as server goes down
             }
         }
     </script>
