@@ -1,6 +1,8 @@
 from flask import render_template, request, jsonify, current_app
 import os
 import logging
+import subprocess
+import platform
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
@@ -57,3 +59,26 @@ def upload():
     logger.info(f"Video uploaded successfully from {client_ip} | Original: {file.filename} | Size: {file_size_mb:.2f} MB | Saved as: SBC-DISPLAY-VIDEO.mp4")
     
     return jsonify({'success': True, 'message': 'Video uploaded successfully'})
+
+@app.route('/restart', methods=['POST'])
+def restart():
+    client_ip = request.remote_addr
+    logger.warning(f"TV restart requested from {client_ip}")
+    
+    try:
+        # Check if we're on a Raspberry Pi (Linux) or macOS for testing
+        system = platform.system()
+        
+        if system == 'Linux':
+            # On Raspberry Pi, execute the reboot command
+            logger.info("Executing system reboot...")
+            subprocess.Popen(['sudo', 'reboot'])
+            return jsonify({'success': True, 'message': 'System restart initiated'})
+        else:
+            # On macOS or other systems (for testing), just log it
+            logger.info(f"Restart requested but skipped (running on {system}, not Raspberry Pi)")
+            return jsonify({'success': True, 'message': f'Restart simulated (running on {system})'})
+    
+    except Exception as e:
+        logger.error(f"Restart failed from {client_ip}: {str(e)}")
+        return jsonify({'error': 'Restart failed', 'details': str(e)}), 500
