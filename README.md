@@ -18,7 +18,7 @@ Use a raw image copier like "HDDRAWCopy" to write the files to a sd card and the
 
 ## Download additional packages
 
-We use network-manager and ufw for customizing the images and hence will need to download additional packages after acoonecting to internet
+We use network-manager and ufw for customizing the image , hence will need to download additional packages after connecting to internet
 
 ### Connect to a wifi/ethernet
 
@@ -41,8 +41,10 @@ sudo nano /etc/apt/sources.list
 
 add these lines
 
+```bash
 deb http://archive.debian.org/debian buster main contrib non-free
 deb http://archive.debian.org/debian-security buster/updates main contrib non-free
+```
 
 #### create this file
 
@@ -52,8 +54,9 @@ sudo nano /etc/apt/apt.conf.d/99no-check-valid-until
 
 add:
 
+```bash
 Acquire::Check-Valid-Until "false";
-
+```
 
 #### Create 99buster-eol file
 
@@ -64,9 +67,11 @@ sudo nano /etc/apt/apt.conf.d/99buster-eol
 
 add:
 
+```bash
 Acquire::Check-Valid-Until "false";
 Acquire::AllowInsecureRepositories "true";
 Acquire::AllowDowngradeToInsecureRepositories "true";
+```
 
 #### Remove stale release metadata
 
@@ -75,7 +80,7 @@ sudo rm -rf /var/lib/apt/lists/*
 ```
 
 
-###Install the packages:
+### Install the packages:
 
 ```bash
 $sudo apt update
@@ -94,9 +99,9 @@ There are 2 config changes that we do in this file:
 file_reader = directory   -- >> change to directory so that it plays from internal sd card
 path = /home/pi/videos   -- >> path from where it plays the video files
 
-##Setting Locales
+## Setting Locales
 
-###To generate locale if not present
+### To generate locale if not present
 ```bash
 sudo locale-gen en_CA.UTF-8
 sudo locale-gen en_CA.UTF-8
@@ -116,15 +121,15 @@ Reboot
 
 
 
-##Setting up Hotspot
+## Setting up Hotspot
 
-###disconnect the wifi
+### Disconnect the wifi
 
 ```bash
 nmcli device disconnect wlan0
 ```
 
-###disable dhcp and enable network manager
+### Disable dhcp and enable network manager
 
 ```bash
 sudo systemctl disable dhcpcd
@@ -134,7 +139,7 @@ sudo systemctl enable NetworkManager
 sudo systemctl start NetworkManager
 ```
 
-###Tell NetworkManager to manage wlan0
+### Tell NetworkManager to manage wlan0
 
 ```bash
 sudo nano /etc/NetworkManager/NetworkManager.conf
@@ -160,10 +165,10 @@ nmcli connection up hotspot
 ```
 
 
-##Block all ports and ehternet
+## Block all ports and ehternet
 
 
-###Block ports
+### Block ports
 
 ```bash
 sudo apt install ufw -y
@@ -173,10 +178,10 @@ sudo ufw allow 80/tcp
 sudo ufw enable
 ```
 
-###Disable ethernet
+### Disable ethernet
 
 
-####create a script to disabel ethernet
+#### Create a script to disabel ethernet
 
 ```bash
 sudo nano /usr/local/bin/force-disable-eth0.sh
@@ -186,14 +191,14 @@ sudo nano /usr/local/bin/force-disable-eth0.sh
 /usr/sbin/ip link set eth0 down
 ```
 
-####Make it executable
+#### Make it executable
 
 ```bash
 sudo chmod +x /usr/local/bin/force-disable-eth0.sh
 ```
 
 
-####Run the script at boot via systemd
+#### Run the script at boot via systemd
 
 ```bash
 sudo nano /etc/systemd/system/force-disable-eth0.service
@@ -215,7 +220,7 @@ User=root
 WantedBy=multi-user.target
 ```
 
-####Enable and start:
+#### Enable and start:
 
 ```bash
 sudo systemctl daemon-reload
@@ -223,7 +228,7 @@ sudo systemctl enable force-disable-eth0.service
 sudo systemctl start force-disable-eth0.service
 ```
 
-###Disable SSH
+### Disable SSH
 
 ```bash
 sudo systemctl disable ssh
