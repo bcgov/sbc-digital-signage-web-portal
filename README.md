@@ -1,4 +1,4 @@
-#Setting up the Pi
+# Setting up the Pi
 
 The Pi uses pi_video_looper by adafruit(https://github.com/adafruit/pi_video_looper) as the image. It's then tweaked for our usage.
 The "pi_video_looper" image uses buster ,based on Debian 10  as base image.
