@@ -4,44 +4,47 @@ The Pi uses pi_video_looper by adafruit(https://github.com/adafruit/pi_video_loo
 The "pi_video_looper" image uses buster ,based on Debian 10  as base image.
 
 
-##Download the image
+## Download the image
 
 The latest images can be obtained from the following url:
 
 https://videolooper.de
 
 
-##Burn the image to the sd card
+## Burn the image to the sd card
 
 Use a raw image copier like "HDDRAWCopy" to write the files to a sd card and then insert it into the pi
 
 
-##Download additional packages
+## Download additional packages
 
 We use network-manager and ufw for customizing the images and hence will need to download additional packages after acoonecting to internet
 
-###Connec to a wifi/ethernet
-
-$sudo raspi-config >> enter the wifi name/password and address also change country in local settings
+### Connect to a wifi/ethernet
 
 ```bash
-#reboot
+sudo raspi-config >> enter the wifi name/password and address also change country in local settings
 ```
 
-###Since debian 10 has reached eol , we need the following tweaks
+```bash
+reboot
+```
+
+### Replace Debian source files
 
 
-####replace everything in sources file with the following:
+#### replace everything in sources file with the following:
 
 ```bash
 sudo nano /etc/apt/sources.list
 ```
 
+add these lines
 
 deb http://archive.debian.org/debian buster main contrib non-free
 deb http://archive.debian.org/debian-security buster/updates main contrib non-free
 
-####create this file
+#### create this file
 
 ```bash
 sudo nano /etc/apt/apt.conf.d/99no-check-valid-until
@@ -52,7 +55,7 @@ add:
 Acquire::Check-Valid-Until "false";
 
 
-####create 99buster-eol file
+#### Create 99buster-eol file
 
 ```bash
 sudo nano /etc/apt/apt.conf.d/99buster-eol
@@ -81,7 +84,7 @@ $sudo apt install -y network-manager --allow-unauthenticated
 $sudo apt install -y ufw --allow-unauthenticated
 ```
 
-##Videop Looper settings
+## Videop Looper settings
 
 Video_looper settings can be changed by editing /boot/videolooper.ini
 
