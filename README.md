@@ -1,3 +1,240 @@
+# Setting up the Pi
+
+The Pi uses pi_video_looper by [Adafruit](https://github.com/adafruit/pi_video_looper) as the image. It's then tweaked for our usage.
+The "pi_video_looper" image uses Buster, based on Debian 10 as base image.
+
+
+## Download the Image
+
+The latest images can be obtained from the following URL:
+
+https://videolooper.de
+
+
+## Burn the Image to the SD Card
+
+Use a raw image copier like "HDDRAWCopy" to write the files to an SD card and then insert it into the Pi
+
+
+## Download Additional Packages
+
+We use network-manager and ufw for customizing the image, hence will need to download additional packages after connecting to the internet.
+
+### Connect to WiFi/Ethernet
+
+```bash
+sudo raspi-config  # Enter the WiFi name/password and address, also change country in local settings
+```
+
+```bash
+reboot
+```
+
+### Replace Debian Source Files
+
+
+#### Replace everything in sources file with the following:
+
+```bash
+sudo nano /etc/apt/sources.list
+```
+
+Add these lines:
+
+```bash
+deb http://archive.debian.org/debian buster main contrib non-free
+deb http://archive.debian.org/debian-security buster/updates main contrib non-free
+```
+
+#### Create this file
+
+```bash
+sudo nano /etc/apt/apt.conf.d/99no-check-valid-until
+```
+
+Add:
+
+```bash
+Acquire::Check-Valid-Until "false";
+```
+
+#### Create 99buster-eol file
+
+```bash
+sudo nano /etc/apt/apt.conf.d/99buster-eol
+```
+
+Add:
+
+```bash
+Acquire::Check-Valid-Until "false";
+Acquire::AllowInsecureRepositories "true";
+Acquire::AllowDowngradeToInsecureRepositories "true";
+```
+
+#### Remove stale release metadata
+
+```bash
+sudo rm -rf /var/lib/apt/lists/*
+```
+
+
+### Install the packages:
+
+```bash
+$sudo apt update
+$sudo apt upgrade -y
+$sudo apt install -y network-manager --allow-unauthenticated
+$sudo apt install -y ufw --allow-unauthenticated
+```
+
+## Video Looper Settings
+
+Video looper settings can be changed by editing `/boot/videolooper.ini`.
+
+There are 2 config changes that we do in this file:
+
+```ini
+file_reader = directory   # Change to directory so that it plays from internal SD card
+path = /home/pi/videos   # Path from where it plays the video files
+```
+
+## Setting Locales
+
+### Generate Locale if Not Present
+```bash
+sudo locale-gen en_CA.UTF-8
+sudo locale-gen en_CA.UTF-8
+```
+
+### Change the Locales Using Either raspi-config GUI or Command Line
+
+```bash
+# Locale
+sudo raspi-config nonint do_change_locale en_CA.UTF-8
+# Keyboard layout
+sudo raspi-config nonint do_configure_keyboard us
+```
+
+Reboot
+
+
+## Setting up Hotspot
+
+### Disconnect the WiFi
+
+```bash
+nmcli device disconnect wlan0
+```
+
+### Disable DHCP and Enable Network Manager
+
+```bash
+sudo systemctl disable dhcpcd
+sudo systemctl stop dhcpcd
+sudo systemctl mask dhcpcd
+sudo systemctl enable NetworkManager
+sudo systemctl start NetworkManager
+```
+
+### Tell NetworkManager to manage wlan0
+
+```bash
+sudo nano /etc/NetworkManager/NetworkManager.conf
+```
+
+Change `managed` to `yes`
+
+
+```bash
+nmcli general status
+```
+```bash
+nmcli connection add type wifi ifname wlan0 con-name hotspot autoconnect yes ssid Pi-Hotspot  # Replace with desired hotspot name
+
+nmcli connection modify hotspot \
+  802-11-wireless.mode ap \
+  802-11-wireless.band bg \
+  ipv4.method shared \
+  wifi-sec.key-mgmt wpa-psk \
+  wifi-sec.psk StrongPassword123
+
+nmcli connection up hotspot
+```
+
+
+## Block All Ports and Ethernet
+
+
+### Block Ports
+
+```bash
+sudo apt install ufw -y
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 80/tcp
+sudo ufw enable
+```
+
+### Disable Ethernet
+
+
+#### Create a Script to Disable Ethernet
+
+```bash
+sudo nano /usr/local/bin/force-disable-eth0.sh
+```
+
+```bash
+/usr/sbin/ip link set eth0 down
+```
+
+#### Make It Executable
+
+```bash
+sudo chmod +x /usr/local/bin/force-disable-eth0.sh
+```
+
+
+#### Run the Script at Boot via systemd
+
+```bash
+sudo nano /etc/systemd/system/force-disable-eth0.service
+```
+
+Add these lines:
+
+```bash
+[Unit]
+Description=Force eth0 down
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/force-disable-eth0.sh
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Enable and Start
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable force-disable-eth0.service
+sudo systemctl start force-disable-eth0.service
+```
+
+### Disable SSH
+
+```bash
+sudo systemctl disable ssh
+sudo systemctl stop ssh
+```
+
+
+
 # Video Upload Portal
 
 A minimal Flask web portal for uploading videos to Raspberry Pi. Users can preview videos before uploading. Uploaded videos are saved as `SBC-DISPLAY-VIDEO.mp4`.
