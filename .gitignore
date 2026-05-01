@@ -4,6 +4,9 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.pycache-check
+.ruff_cache
+.uv-check-cache
 
 # Flask
 instance/
@@ -22,6 +25,8 @@ logs/
 # Uploads (generated content)
 uploads/
 *.mp4
+build/
+dist/
 
 # IDE
 .vscode/
