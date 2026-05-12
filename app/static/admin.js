@@ -38,6 +38,15 @@ function formatFieldValue(field, value) {
         }
     }
 
+    if (field === "last_attempt" && value) {
+        // Parse "YYYY-MM-DD_HHMMSS" (UTC) into a readable local time string
+        const m = value.match(/^(\d{4})-(\d{2})-(\d{2})_(\d{2})(\d{2})(\d{2})$/);
+        if (m) {
+            const d = new Date(Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]));
+            return d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
+        }
+    }
+
     return value;
 }
 

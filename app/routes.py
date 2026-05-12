@@ -3,6 +3,7 @@ import os
 import platform
 import subprocess
 from datetime import datetime, timezone
+from functools import wraps
 from pathlib import Path
 
 from flask import (
@@ -24,6 +25,20 @@ UPDATE_FAILURE_MESSAGE = (
     "Update failed. Please contact SBCTS@gov.bc.ca for assistance"
 )
 UPDATE_SUCCESS_LOG_MARKER = "Update completed successfully."
+
+
+def require_admin_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if (
+            not auth
+            or auth.username != current_app.config.get("VIDEO_PORTAL_ADMIN_USERNAME")
+            or auth.password != current_app.config.get("VIDEO_PORTAL_ADMIN_PASSWORD")
+        ):
+            return ("", 401, {"WWW-Authenticate": 'Basic realm="Admin Console"'})
+        return f(*args, **kwargs)
+    return decorated
 
 
 def get_recent_update_log(log_dir):
@@ -263,6 +278,7 @@ def restart():
 
 
 @main_bp.route("/admin", methods=["GET", "POST"])
+@require_admin_auth
 def admin_console():
     status = load_update_status()
     initial_last_attempt = status.get("last_attempt")
@@ -311,5 +327,6 @@ def admin_console():
 
 
 @main_bp.route("/status")
+@require_admin_auth
 def admin_status():
     return jsonify(load_update_status())

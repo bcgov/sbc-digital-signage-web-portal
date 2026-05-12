@@ -112,6 +112,14 @@ def get_app_config():
             "VIDEO_PORTAL_HEALTHCHECK_PATH",
             DEFAULT_HEALTHCHECK_PATH,
         ),
+        "VIDEO_PORTAL_ADMIN_USERNAME": os.environ.get(
+            "VIDEO_PORTAL_ADMIN_USERNAME",
+            "",
+        ),
+        "VIDEO_PORTAL_ADMIN_PASSWORD": os.environ.get(
+            "VIDEO_PORTAL_ADMIN_PASSWORD",
+            "",
+        ),
     }
     return config
 
