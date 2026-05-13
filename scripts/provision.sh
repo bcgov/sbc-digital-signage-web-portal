@@ -10,6 +10,8 @@ CURRENT_ROOT="$PORTAL_ROOT/current"
 PORTAL_USER_HOME=
 
 SKIP_SUPERVISOR_CONTROL=${VIDEO_PORTAL_SKIP_SUPERVISOR_CONTROL:-false}
+VIDEO_PORTAL_ADMIN_USERNAME=${VIDEO_PORTAL_ADMIN_USERNAME:-admin}
+VIDEO_PORTAL_ADMIN_PASSWORD=${VIDEO_PORTAL_ADMIN_PASSWORD:-}
 
 UV_BIN=${VIDEO_PORTAL_UV_BIN:-/usr/local/bin/uv}
 UV_CACHE_DIR="$PORTAL_ROOT/.uv/cache"
@@ -20,6 +22,14 @@ export UV_CACHE_DIR UV_PYTHON_INSTALL_DIR
 require_root() {
     if [ "$(id -u)" -ne 0 ]; then
         echo "Run this script as root, for example: sudo ./scripts/provision.sh" >&2
+        exit 1
+    fi
+}
+
+require_admin_password() {
+    if [ -z "$VIDEO_PORTAL_ADMIN_PASSWORD" ]; then
+        echo "Set VIDEO_PORTAL_ADMIN_PASSWORD in the environment before running provision.sh." >&2
+        echo "Example: sudo VIDEO_PORTAL_ADMIN_PASSWORD='change-me' ./scripts/provision.sh" >&2
         exit 1
     fi
 }
@@ -92,16 +102,19 @@ ensure_directories() {
 }
 
 write_shared_env() {
-    run_as_portal_user sh -c "cat > \"\$1\" <<'EOF'
+    run_as_portal_user env \
+        VIDEO_PORTAL_ADMIN_USERNAME="$VIDEO_PORTAL_ADMIN_USERNAME" \
+        VIDEO_PORTAL_ADMIN_PASSWORD="$VIDEO_PORTAL_ADMIN_PASSWORD" \
+        sh -c 'cat > "$1" <<EOF
 FLASK_HOST=0.0.0.0
 FLASK_PORT=80
 FLASK_DEBUG=false
 UPLOAD_FOLDER=/home/pi/videos
 MAX_CONTENT_LENGTH=2147483648
-VIDEO_PORTAL_ADMIN_USERNAME=admin
-VIDEO_PORTAL_ADMIN_PASSWORD=admin
+VIDEO_PORTAL_ADMIN_USERNAME=$VIDEO_PORTAL_ADMIN_USERNAME
+VIDEO_PORTAL_ADMIN_PASSWORD=$VIDEO_PORTAL_ADMIN_PASSWORD
 EOF
-    " sh "$PORTAL_ROOT/shared/app/.env"
+    ' sh "$PORTAL_ROOT/shared/app/.env"
 }
 
 seed_release_layout() {
@@ -276,6 +289,7 @@ start_supervisor_service() {
 
 main() {
     require_root
+    require_admin_password
     install_system_packages
     ensure_directories
     stop_supervisor_service

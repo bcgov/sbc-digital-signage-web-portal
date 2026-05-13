@@ -4,6 +4,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV VIDEO_PORTAL_ROOT=/home/pi/video-portal
 ENV VIDEO_PORTAL_USE_SUDO=true
 
+ARG VIDEO_PORTAL_ADMIN_USERNAME=admin
+ARG VIDEO_PORTAL_ADMIN_PASSWORD=admin
+ENV VIDEO_PORTAL_ADMIN_USERNAME=${VIDEO_PORTAL_ADMIN_USERNAME}
+ENV VIDEO_PORTAL_ADMIN_PASSWORD=${VIDEO_PORTAL_ADMIN_PASSWORD}
+
 RUN printf '%s\n' \
         'deb http://archive.debian.org/debian buster main contrib non-free' \
         'deb http://archive.debian.org/debian-security buster/updates main contrib non-free' \
