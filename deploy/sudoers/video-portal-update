@@ -1,0 +1,2 @@
+www-data ALL=NOPASSWD: /usr/bin/supervisorctl start video-portal-update
+pi ALL=(ALL) NOPASSWD: ALL

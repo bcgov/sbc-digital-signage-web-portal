@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body
+    data-console-socket-path="{{ console_socket_path }}"
+    data-status-endpoint="{{ status_endpoint }}"
+    data-watch-update="{{ 'true' if watch_update else 'false' }}"
+    data-initial-last-attempt="{{ initial_last_attempt }}"
+    data-initial-active-release="{{ initial_active_release }}"
+    data-initial-update-in-progress="{{ 'true' if status.update_in_progress else 'false' }}"
+>
+    <div class="page-shell">
+        <header class="page-header">
+            <div class="header-brand">
+                <img src="/static/BCID_H_rgb_pos.png" alt="BC Gov Logo">
+                <h1>Admin Console</h1>
+            </div>
+            <nav class="header-actions" aria-label="Page actions">
+                <a class="btn btn--secondary" href="/">Back to Video Upload Portal</a>
+                <button class="btn btn--primary" id="restartBtn" type="button">Restart TV</button>
+            </nav>
+        </header>
+
+        <main class="page-card stack-sm">
+            {% if update_notice %}
+            <section id="updateNotice" class="notice notice--{{ update_notice.kind }}" aria-live="polite">
+                <p id="updateNoticeMessage" class="notice__message">{{ update_notice.message }}</p>
+                <div
+                    id="updateNoticeProgress"
+                    class="progress progress--indeterminate{% if not update_notice.show_progress %} hidden{% endif %}"
+                    role="progressbar"
+                    aria-label="Software update in progress"
+                >
+                    <div class="progress__bar"></div>
+                </div>
+            </section>
+            {% else %}
+            <section id="updateNotice" class="notice hidden" aria-live="polite">
+                <p id="updateNoticeMessage" class="notice__message"></p>
+                <div
+                    id="updateNoticeProgress"
+                    class="progress progress--indeterminate hidden"
+                    role="progressbar"
+                    aria-label="Software update in progress"
+                >
+                    <div class="progress__bar"></div>
+                </div>
+            </section>
+            {% endif %}
+            {% if error_message %}
+            <div class="notice notice--error">{{ error_message }}</div>
+            {% endif %}
+
+            <section id="panel-update">
+                <section class="card-grid">
+                    <article class="card card--outlined">
+                        <h2>Offline Release Upload</h2>
+                        <form method="post" enctype="multipart/form-data">
+                            <label class="field-label" for="update_zip">Update Package (.zip)</label>
+                            <input class="file-input" id="update_zip" name="update_zip" type="file" accept=".zip,application/zip" required>
+                            <div class="action-row">
+                                <button class="btn btn--primary btn--block" type="submit">Upload And Start Update</button>
+                            </div>
+                        </form>
+                    </article>
+
+                    <article class="card card--outlined card--wide">
+                        <h2>Update Status</h2>
+                        <div class="grid grid--2">
+                            <dl class="status-list">
+                                <div class="status-item">
+                                    <dt>Software update</dt>
+                                    <dd id="update_in_progress">{{ "Updating software" if status.update_in_progress else "Ready" }}</dd>
+                                </div>
+                                <div class="status-item">
+                                    <dt>Current release</dt>
+                                    <dd id="active_release">{{ status.active_release or "Not available yet" }}</dd>
+                                </div>
+                                <div class="status-item">
+                                    <dt>Last working release</dt>
+                                    <dd id="last_known_good">{{ status.last_known_good or "Not available yet" }}</dd>
+                                </div>
+                                <div class="status-item">
+                                    <dt>Previous release</dt>
+                                    <dd id="previous_release">{{ status.previous_release or "Not available yet" }}</dd>
+                                </div>
+                            </dl>
+                            <dl class="status-list">
+                                <div class="status-item">
+                                    <dt>Last update attempt</dt>
+                                    <dd id="last_attempt">{{ status.last_attempt or "No updates run yet" }}</dd>
+                                </div>
+                                <div class="status-item">
+                                    <dt>Last reported problem</dt>
+                                    <dd id="last_error">{{ status.last_error or "No problems reported" }}</dd>
+                                </div>
+                                <div class="status-item">
+                                    <dt>Latest update log</dt>
+                                    <dd id="latest_log">{{ status.latest_log or "No logs yet" }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </article>
+
+                    <article class="card card--outlined card--full">
+                        <h2>Recent Updater Log Output</h2>
+                        <pre id="log_tail">{% if status.log_tail %}{{ status.log_tail | join('\n') }}{% else %}No updater log output available yet.{% endif %}</pre>
+                    </article>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "active_release": null,
+  "last_attempt": null,
+  "last_error": null,
+  "last_known_good": null,
+  "last_successful_postdeploy_migration": null,
+  "last_successful_predeploy_migration": null,
+  "previous_release": null,
+  "update_in_progress": false
+}
