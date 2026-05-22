@@ -86,7 +86,7 @@ sudo systemctl enable NetworkManager
 sudo systemctl start NetworkManager
 ```
 
-Update `/etc/NetworkManager/NetworkManager.conf` so `managed=yes`, then create the hotspot:
+Update `/etc/NetworkManager/NetworkManager.conf` so `managed=true`, then create the hotspot:
 
 ```bash
 nmcli connection add type wifi ifname wlan0 con-name hotspot autoconnect yes ssid Pi-Hotspot
